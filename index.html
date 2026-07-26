@@ -1,0 +1,3063 @@
+
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+    <meta charset="UTF-8">
+    <title>Basal Body Temperature</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: "Open Sans", "Verdana", Arial, sans-serif;
+        background: #fafafa;
+        overflow-y: auto; /* 全体スクロール */
+      }
+    
+      /* ページタイトル */
+      .header {
+        padding: 10px;
+        font-size: 20px;
+        font-weight: bold;
+        background: #ffffff;
+        border-bottom: 2px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      /* 更新ボタン */
+      .update-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+        background-color: #4A7AAD;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .update-btn:hover {
+        background-color: #3A5F87;
+      }
+    
+        .container {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 10px;
+        }
+        
+        /* グラフ領域 */
+        .graph-row {
+          display: grid;
+          /* grid-template-columns: 1fr 1fr; */
+          grid-template-columns: 1fr 1fr 180px;  /* 2グラフ+リスト*/
+          gap: 10px;
+        }
+
+        #cycle_list {
+          font-size: 12px;   /* ← 好きなサイズに変更可能 */
+          line-height: 1.4;
+          color: #333;
+        }
+
+        /* 各グラフの枠 */
+        .graph-box {
+          background: #fff;
+          border: 1px solid #ccc;
+          padding: 5px;
+        }
+
+        /* テーブル領域 */
+        .table-area {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-x: auto; /* 横スクロールのみ許可 */
+        }
+    
+    table {
+        font-size: 12px;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 4px 6px;
+    }
+
+    /* テーブルデータの見た目 */
+    .bbt-table {
+        font-family: "Open Sans", "Verdana", Arial, sans-serif;
+        font-size: 13px;
+        border-collapse: collapse;
+        width: 100%;
+        color: #333;              /* ← 少し柔らかい黒 */
+    }
+    .bbt-table th {
+        background-color: #f5f5f5;
+        padding: 8px 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+        font-weight: 600;         /* ← 見やすい太さ */
+    }
+    .bbt-table td {
+        padding: 6px 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .bbt-table tr:nth-child(even) {
+        background-color: #fafafa; /* ← 行の色を少しだけ変えて見やすく */
+    }
+    .bbt-table th:nth-child(2),
+    .bbt-table td:nth-child(2) {
+        width: 120px;   /* ← 好きな幅に調整 */
+    }
+    .bbt-table tr:hover {
+        background-color: #f0f8ff; /* ← 好きな色に変更可能 */
+    }
+    
+    </style>
+    </head>
+    
+    <body>
+    
+    <div class="header">
+      Basal Body Temperature
+      <button class="update-btn" onclick="updateDashboard()">Update</button>
+    </div>
+    
+    <div class="container">
+    <!-- Trend グラフ -->
+      <div class="graph-box" id="plot_date"><div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.5.0.min.js" integrity="sha256-fHbNLP+GlIXN+efbQec78UkemUz3NJp7UmfGxC1tNxs=" crossorigin="anonymous"></script>                <div id="3f79c674-c682-4626-b203-bf0d8a0a75d8" class="plotly-graph-div" style="height:350px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("3f79c674-c682-4626-b203-bf0d8a0a75d8")) {                    Plotly.newPlot(                        "3f79c674-c682-4626-b203-bf0d8a0a75d8",                        [{"hovertemplate":"%{x|%Y-%m-%d}\u003cbr\u003e%{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"black","width":1.2},"mode":"lines","name":"BBT","x":["2025-09-10","2025-09-11","2025-09-12","2025-09-13","2025-09-14","2025-09-15","2025-09-16","2025-09-17","2025-09-18","2025-09-19","2025-09-20","2025-09-21","2025-09-22","2025-09-23","2025-09-24","2025-09-25","2025-09-26","2025-09-27","2025-09-28","2025-09-29","2025-09-30","2025-10-01","2025-10-02","2025-10-03","2025-10-04","2025-10-05","2025-10-06","2025-10-07","2025-10-08","2025-10-09","2025-10-10","2025-10-11","2025-10-12","2025-10-13","2025-10-14","2025-10-15","2025-10-16","2025-10-17","2025-10-18","2025-10-19","2025-10-20","2025-10-21","2025-10-22","2025-10-23","2025-10-24","2025-10-25","2025-10-26","2025-10-27","2025-10-28","2025-10-29","2025-10-30","2025-10-31","2025-11-01","2025-11-02","2025-11-03","2025-11-04","2025-11-05","2025-11-06","2025-11-07","2025-11-08","2025-11-09","2025-11-10","2025-11-11","2025-11-12","2025-11-13","2025-11-14","2025-11-15","2025-11-16","2025-11-17","2025-11-18","2025-11-19","2025-11-20","2025-11-21","2025-11-22","2025-11-23","2025-11-24","2025-11-25","2025-11-26","2025-11-27","2025-11-28","2025-11-29","2025-11-30","2025-12-01","2025-12-02","2025-12-03","2025-12-04","2025-12-05","2025-12-06","2025-12-07","2025-12-08","2025-12-09","2025-12-10","2025-12-11","2025-12-12","2025-12-13","2025-12-14","2025-12-15","2025-12-16","2025-12-17","2025-12-18","2025-12-19","2025-12-20","2025-12-21","2025-12-22","2025-12-23","2025-12-24","2025-12-25","2025-12-26","2025-12-27","2025-12-28","2025-12-29","2025-12-30","2025-12-31","2026-01-01","2026-01-02","2026-01-03","2026-01-04","2026-01-05","2026-01-06","2026-01-07","2026-01-08","2026-01-09","2026-01-10","2026-01-11","2026-01-12","2026-01-13","2026-01-14","2026-01-15","2026-01-16","2026-01-17","2026-01-18","2026-01-19","2026-01-20","2026-01-21","2026-01-22","2026-01-23","2026-01-24","2026-01-25","2026-01-26","2026-01-27","2026-01-28","2026-01-29","2026-01-30","2026-01-31","2026-02-01","2026-02-02","2026-02-03","2026-02-04","2026-02-05","2026-02-06","2026-02-07","2026-02-08","2026-02-09","2026-02-10","2026-02-11","2026-02-12","2026-02-13","2026-02-14","2026-02-15","2026-02-16","2026-02-17","2026-02-18","2026-02-19","2026-02-20","2026-02-21","2026-02-22","2026-02-23","2026-02-24","2026-02-25","2026-02-26","2026-02-27","2026-02-28","2026-03-01","2026-03-02","2026-03-03","2026-03-04","2026-03-05","2026-03-06","2026-03-07","2026-03-08","2026-03-09","2026-03-10","2026-03-11","2026-03-12","2026-03-13","2026-03-14","2026-03-15","2026-03-16","2026-03-17","2026-03-18","2026-03-19","2026-03-20","2026-03-21","2026-03-22","2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-27","2026-03-28","2026-03-29","2026-03-30","2026-03-31","2026-04-01","2026-04-02","2026-04-03","2026-04-04","2026-04-05","2026-04-06","2026-04-07","2026-04-08","2026-04-09","2026-04-10","2026-04-11","2026-04-12","2026-04-13","2026-04-14","2026-04-15","2026-04-16","2026-04-17","2026-04-18","2026-04-19","2026-04-20","2026-04-21","2026-04-22","2026-04-23","2026-04-24","2026-04-25","2026-04-26","2026-04-27","2026-04-28","2026-04-29","2026-04-30","2026-05-01","2026-05-02","2026-05-03","2026-05-04","2026-05-05","2026-05-06","2026-05-07","2026-05-08","2026-05-09","2026-05-10","2026-05-11","2026-05-12","2026-05-13","2026-05-14","2026-05-15","2026-05-16","2026-05-17","2026-05-18","2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-23","2026-05-24","2026-05-25","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-05-30","2026-05-31","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-06","2026-06-07","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-13","2026-06-14","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-19","2026-06-20","2026-06-21","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-27","2026-06-28","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-03","2026-07-04","2026-07-05","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-11","2026-07-12","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-18","2026-07-19","2026-07-20","2026-07-21","2026-07-22","2026-07-23","2026-07-24","2026-07-25","2026-07-26"],"y":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,36.39,36.49,36.46,36.6,36.95,36.86,37.16,36.73,36.8,36.81,36.93,36.92,36.96,36.7,36.68,36.4,36.5,36.42,36.54,36.53,36.66,36.49,36.29,36.27,36.38,36.4,36.29,36.57,36.03,36.49,36.1,36.48,36.3,36.39,36.63,36.35,36.54,36.45,36.71,36.89,36.67,36.63,36.61,36.72,36.96,36.93,36.78,36.79,36.57,36.42,36.36,36.28,36.23,36.53,36.29,36.32,36.26,36.89,36.46,36.46,36.3,36.53,36.22,36.36,36.37,36.3,36.25,36.48,36.63,36.32,36.48,36.6,36.62,36.68,36.74,36.63,36.74,36.65,36.58,36.75,36.72,36.6,36.75,36.49,36.23,36.35,36.37,36.31,36.49,36.34,36.39,36.54,36.3,36.41,36.46,36.42,36.47,36.22,36.24,36.48,36.38,36.34,36.2,36.33,36.6,36.36,36.35,36.61,36.64,36.78,36.67,36.79,36.77,36.91,36.71,36.66,36.65,36.78,36.41,36.41,36.41,36.33,36.41,36.11,36.21,36.5,36.35,36.26,36.36,36.12,37.99,37.97,39.11,37.67,36.76,37.09,null,36.3,36.53,36.34,36.33,36.06,36.38,36.36,36.46,36.41,36.48,36.51,36.41,36.59,36.51,36.37,36.39,36.28,36.65,36.7,36.84,36.73,36.84,36.9,36.59,36.84,36.47,null,36.78,36.43,36.12,36.7,36.34,36.2,36.52,36.42,36.56,36.36,36.61,36.46,36.3,36.32,36.43,36.23,36.61,36.59,36.29,36.51,36.6,36.39,36.03,36.58,36.37,36.14,36.19,36.51,36.39,36.68,36.73,36.71,36.7,36.75,36.67,36.63,36.73,36.56,36.41,36.5,36.57,36.52,36.29,36.28,36.24,36.14,36.21,36.35,36.35,36.12,36.4,36.26,36.52,36.45,36.25,36.52,36.63,36.53,36.96,36.85,36.68,36.71,36.73,36.87,36.68,36.76,36.5,36.68,36.42,36.35,36.21,36.04,36.23,36.25,36.45,36.14,36.1,36.32,36.52,36.22,36.31,36.4,36.28,36.37,36.3,36.29,36.51,36.49,36.55,36.48,36.69,36.7,36.82,36.92,36.86,36.66,36.63,36.66,36.52,36.38,36.41,36.38,36.18,36.37,36.32,36.15,36.55,36.06,36.52,36.06,36.42,36.15,36.26,36.51,36.38,36.31,36.47,36.35,36.51,36.76,36.3,36.7,36.79,36.63,36.65,36.6,36.88,36.5,36.75,null,36.32,35.92,36.36,36.22,36.38,36.07,36.25],"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"shapes":[{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.55,"y1":35.55,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.599999999999994,"y1":35.599999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.64999999999999,"y1":35.64999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.69999999999999,"y1":35.69999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.749999999999986,"y1":35.749999999999986,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.79999999999998,"y1":35.79999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.84999999999998,"y1":35.84999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.89999999999998,"y1":35.89999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.949999999999974,"y1":35.949999999999974,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.99999999999997,"y1":35.99999999999997,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.04999999999997,"y1":36.04999999999997,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.099999999999966,"y1":36.099999999999966,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.14999999999996,"y1":36.14999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.19999999999996,"y1":36.19999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.24999999999996,"y1":36.24999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.299999999999955,"y1":36.299999999999955,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.34999999999995,"y1":36.34999999999995,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.39999999999995,"y1":36.39999999999995,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.449999999999946,"y1":36.449999999999946,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.49999999999994,"y1":36.49999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.54999999999994,"y1":36.54999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.59999999999994,"y1":36.59999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.649999999999935,"y1":36.649999999999935,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.69999999999993,"y1":36.69999999999993,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.74999999999993,"y1":36.74999999999993,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.799999999999926,"y1":36.799999999999926,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.84999999999992,"y1":36.84999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.89999999999992,"y1":36.89999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.94999999999992,"y1":36.94999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.999999999999915,"y1":36.999999999999915,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.04999999999991,"y1":37.04999999999991,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.09999999999991,"y1":37.09999999999991,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.149999999999906,"y1":37.149999999999906,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.1999999999999,"y1":37.1999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.2499999999999,"y1":37.2499999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.2999999999999,"y1":37.2999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.349999999999895,"y1":37.349999999999895,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.39999999999989,"y1":37.39999999999989,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.44999999999989,"y1":37.44999999999989,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.499999999999886,"y1":37.499999999999886,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.54999999999988,"y1":37.54999999999988,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.59999999999988,"y1":37.59999999999988,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.64999999999988,"y1":37.64999999999988,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.699999999999875,"y1":37.699999999999875,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.74999999999987,"y1":37.74999999999987,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.79999999999987,"y1":37.79999999999987,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.849999999999866,"y1":37.849999999999866,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.899999999999864,"y1":37.899999999999864,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.94999999999986,"y1":37.94999999999986,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.99999999999986,"y1":37.99999999999986,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.049999999999855,"y1":38.049999999999855,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.09999999999985,"y1":38.09999999999985,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.14999999999985,"y1":38.14999999999985,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.19999999999985,"y1":38.19999999999985,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.249999999999844,"y1":38.249999999999844,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.29999999999984,"y1":38.29999999999984,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.34999999999984,"y1":38.34999999999984,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.399999999999835,"y1":38.399999999999835,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.44999999999983,"y1":38.44999999999983,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.49999999999983,"y1":38.49999999999983,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.54999999999983,"y1":38.54999999999983,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.599999999999824,"y1":38.599999999999824,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.64999999999982,"y1":38.64999999999982,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.69999999999982,"y1":38.69999999999982,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.749999999999815,"y1":38.749999999999815,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.79999999999981,"y1":38.79999999999981,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.84999999999981,"y1":38.84999999999981,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.89999999999981,"y1":38.89999999999981,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.949999999999804,"y1":38.949999999999804,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.9999999999998,"y1":38.9999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.0499999999998,"y1":39.0499999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.099999999999795,"y1":39.099999999999795,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.14999999999979,"y1":39.14999999999979,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.19999999999979,"y1":39.19999999999979,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.24999999999979,"y1":39.24999999999979,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.299999999999784,"y1":39.299999999999784,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.34999999999978,"y1":39.34999999999978,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.39999999999978,"y1":39.39999999999978,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.449999999999775,"y1":39.449999999999775,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.49999999999977,"y1":39.49999999999977,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.6,"y1":35.6,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.7,"y1":35.7,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.800000000000004,"y1":35.800000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.900000000000006,"y1":35.900000000000006,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.00000000000001,"y1":36.00000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.10000000000001,"y1":36.10000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.20000000000001,"y1":36.20000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.30000000000001,"y1":36.30000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.40000000000001,"y1":36.40000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.500000000000014,"y1":36.500000000000014,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.600000000000016,"y1":36.600000000000016,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.70000000000002,"y1":36.70000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.80000000000002,"y1":36.80000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.90000000000002,"y1":36.90000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.00000000000002,"y1":37.00000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.10000000000002,"y1":37.10000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.200000000000024,"y1":37.200000000000024,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.300000000000026,"y1":37.300000000000026,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.40000000000003,"y1":37.40000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.50000000000003,"y1":37.50000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.60000000000003,"y1":37.60000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.70000000000003,"y1":37.70000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.80000000000003,"y1":37.80000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.900000000000034,"y1":37.900000000000034,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.000000000000036,"y1":38.000000000000036,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.10000000000004,"y1":38.10000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.20000000000004,"y1":38.20000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.30000000000004,"y1":38.30000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.40000000000004,"y1":38.40000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.50000000000004,"y1":38.50000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.600000000000044,"y1":38.600000000000044,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.700000000000045,"y1":38.700000000000045,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.80000000000005,"y1":38.80000000000005,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.90000000000005,"y1":38.90000000000005,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.00000000000005,"y1":39.00000000000005,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.10000000000005,"y1":39.10000000000005,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.20000000000005,"y1":39.20000000000005,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.300000000000054,"y1":39.300000000000054,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.400000000000055,"y1":39.400000000000055,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.50000000000006,"y1":39.50000000000006,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.0,"y1":36.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.5,"y1":36.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.0,"y1":37.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.5,"y1":37.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.0,"y1":38.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":38.5,"y1":38.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.0,"y1":39.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":39.5,"y1":39.5,"yref":"y"},{"line":{"color":"red","dash":"dot","width":1.0},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.7,"y1":36.7,"yref":"y"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2025-09-13","x1":"2025-09-13","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2025-10-14","x1":"2025-10-14","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2025-11-16","x1":"2025-11-16","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2025-12-21","x1":"2025-12-21","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-01-26","x1":"2026-01-26","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-03-14","x1":"2026-03-14","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-04-19","x1":"2026-04-19","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-05-19","x1":"2026-05-19","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-06-19","x1":"2026-06-19","xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"blue","dash":"dot","width":0.5},"opacity":0.3,"type":"line","x0":"2026-07-20","x1":"2026-07-20","xref":"x","y0":0,"y1":1,"yref":"y domain"}],"margin":{"l":20,"r":20,"t":35,"b":20},"xaxis":{"rangeslider":{"visible":true,"thickness":0.05},"title":{"text":"Date"},"tickformat":"%Y-%m","tickangle":-45,"range":["2025-09-10","2026-07-26"],"showline":true,"linecolor":"gray","linewidth":1.2,"mirror":true},"yaxis":{"title":{"text":"BBT [\u2103]"},"tickformat":".1f","showline":true,"linecolor":"gray","linewidth":1.2,"mirror":true,"fixedrange":false},"autosize":true,"height":350,"plot_bgcolor":"rgba(253,253,255,1)","paper_bgcolor":"rgba(255,255,255,1)"},                        {"responsive": true}                    )                };            </script>        </div></div>
+    <!-- Cycle + IQR グラフ -->
+        <div class="graph-row">
+            <!-- Basal Body Temperature Cycle -->
+            <div class="graph-box" id="plot_cycle"><div>                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.5.0.min.js" integrity="sha256-fHbNLP+GlIXN+efbQec78UkemUz3NJp7UmfGxC1tNxs=" crossorigin="anonymous"></script>                <div id="898bebc9-d156-42a9-9e79-acd7c97ac50c" class="plotly-graph-div" style="height:350px; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("898bebc9-d156-42a9-9e79-acd7c97ac50c")) {                    Plotly.newPlot(                        "898bebc9-d156-42a9-9e79-acd7c97ac50c",                        [{"customdata":["25-09-10","25-09-11","25-09-12"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(102, 197, 204)"},"mode":"lines+markers","name":"Cycle 0: 2025-09-10","x":[1,2,3],"y":[null,null,null],"type":"scatter"},{"customdata":["25-09-13","25-09-14","25-09-15","25-09-16","25-09-17","25-09-18","25-09-19","25-09-20","25-09-21","25-09-22","25-09-23","25-09-24","25-09-25","25-09-26","25-09-27","25-09-28","25-09-29","25-09-30","25-10-01","25-10-02","25-10-03","25-10-04","25-10-05","25-10-06","25-10-07","25-10-08","25-10-09","25-10-10","25-10-11","25-10-12","25-10-13"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(246, 207, 113)"},"mode":"lines+markers","name":"Cycle 1: 2025-09-13","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"y":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,36.39,36.49,36.46,36.6,36.95,36.86,37.16,36.73,36.8,36.81,36.93,36.92,36.96,36.7,36.68],"type":"scatter"},{"customdata":["25-10-14","25-10-15","25-10-16","25-10-17","25-10-18","25-10-19","25-10-20","25-10-21","25-10-22","25-10-23","25-10-24","25-10-25","25-10-26","25-10-27","25-10-28","25-10-29","25-10-30","25-10-31","25-11-01","25-11-02","25-11-03","25-11-04","25-11-05","25-11-06","25-11-07","25-11-08","25-11-09","25-11-10","25-11-11","25-11-12","25-11-13","25-11-14","25-11-15"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(248, 156, 116)"},"mode":"lines+markers","name":"Cycle 2: 2025-10-14","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33],"y":[36.4,36.5,36.42,36.54,36.53,36.66,36.49,36.29,36.27,36.38,36.4,36.29,36.57,36.03,36.49,36.1,36.48,36.3,36.39,36.63,36.35,36.54,36.45,36.71,36.89,36.67,36.63,36.61,36.72,36.96,36.93,36.78,36.79],"type":"scatter"},{"customdata":["25-11-16","25-11-17","25-11-18","25-11-19","25-11-20","25-11-21","25-11-22","25-11-23","25-11-24","25-11-25","25-11-26","25-11-27","25-11-28","25-11-29","25-11-30","25-12-01","25-12-02","25-12-03","25-12-04","25-12-05","25-12-06","25-12-07","25-12-08","25-12-09","25-12-10","25-12-11","25-12-12","25-12-13","25-12-14","25-12-15","25-12-16","25-12-17","25-12-18","25-12-19","25-12-20"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(220, 176, 242)"},"mode":"lines+markers","name":"Cycle 3: 2025-11-16","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35],"y":[36.57,36.42,36.36,36.28,36.23,36.53,36.29,36.32,36.26,36.89,36.46,36.46,36.3,36.53,36.22,36.36,36.37,36.3,36.25,36.48,36.63,36.32,36.48,36.6,36.62,36.68,36.74,36.63,36.74,36.65,36.58,36.75,36.72,36.6,36.75],"type":"scatter"},{"customdata":["25-12-21","25-12-22","25-12-23","25-12-24","25-12-25","25-12-26","25-12-27","25-12-28","25-12-29","25-12-30","25-12-31","26-01-01","26-01-02","26-01-03","26-01-04","26-01-05","26-01-06","26-01-07","26-01-08","26-01-09","26-01-10","26-01-11","26-01-12","26-01-13","26-01-14","26-01-15","26-01-16","26-01-17","26-01-18","26-01-19","26-01-20","26-01-21","26-01-22","26-01-23","26-01-24","26-01-25"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(135, 197, 95)"},"mode":"lines+markers","name":"Cycle 4: 2025-12-21","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36],"y":[36.49,36.23,36.35,36.37,36.31,36.49,36.34,36.39,36.54,36.3,36.41,36.46,36.42,36.47,36.22,36.24,36.48,36.38,36.34,36.2,36.33,36.6,36.36,36.35,36.61,36.64,36.78,36.67,36.79,36.77,36.91,36.71,36.66,36.65,36.78,36.41],"type":"scatter"},{"customdata":["26-01-26","26-01-27","26-01-28","26-01-29","26-01-30","26-01-31","26-02-01","26-02-02","26-02-03","26-02-04","26-02-05","26-02-06","26-02-07","26-02-08","26-02-09","26-02-10","26-02-11","26-02-12","26-02-13","26-02-14","26-02-15","26-02-16","26-02-17","26-02-18","26-02-19","26-02-20","26-02-21","26-02-22","26-02-23","26-02-24","26-02-25","26-02-26","26-02-27","26-02-28","26-03-01","26-03-02","26-03-03","26-03-04","26-03-05","26-03-06","26-03-07","26-03-08","26-03-09","26-03-10","26-03-11","26-03-12","26-03-13"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(158, 185, 243)"},"mode":"lines+markers","name":"Cycle 5: 2026-01-26","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47],"y":[36.41,36.41,36.33,36.41,36.11,36.21,36.5,36.35,36.26,36.36,36.12,37.99,37.97,39.11,37.67,36.76,37.09,null,36.3,36.53,36.34,36.33,36.06,36.38,36.36,36.46,36.41,36.48,36.51,36.41,36.59,36.51,36.37,36.39,36.28,36.65,36.7,36.84,36.73,36.84,36.9,36.59,36.84,36.47,null,36.78,36.43],"type":"scatter"},{"customdata":["26-03-14","26-03-15","26-03-16","26-03-17","26-03-18","26-03-19","26-03-20","26-03-21","26-03-22","26-03-23","26-03-24","26-03-25","26-03-26","26-03-27","26-03-28","26-03-29","26-03-30","26-03-31","26-04-01","26-04-02","26-04-03","26-04-04","26-04-05","26-04-06","26-04-07","26-04-08","26-04-09","26-04-10","26-04-11","26-04-12","26-04-13","26-04-14","26-04-15","26-04-16","26-04-17","26-04-18"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(254, 136, 177)"},"mode":"lines+markers","name":"Cycle 6: 2026-03-14","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36],"y":[36.12,36.7,36.34,36.2,36.52,36.42,36.56,36.36,36.61,36.46,36.3,36.32,36.43,36.23,36.61,36.59,36.29,36.51,36.6,36.39,36.03,36.58,36.37,36.14,36.19,36.51,36.39,36.68,36.73,36.71,36.7,36.75,36.67,36.63,36.73,36.56],"type":"scatter"},{"customdata":["26-04-19","26-04-20","26-04-21","26-04-22","26-04-23","26-04-24","26-04-25","26-04-26","26-04-27","26-04-28","26-04-29","26-04-30","26-05-01","26-05-02","26-05-03","26-05-04","26-05-05","26-05-06","26-05-07","26-05-08","26-05-09","26-05-10","26-05-11","26-05-12","26-05-13","26-05-14","26-05-15","26-05-16","26-05-17","26-05-18"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(201, 219, 116)"},"mode":"lines+markers","name":"Cycle 7: 2026-04-19","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30],"y":[36.41,36.5,36.57,36.52,36.29,36.28,36.24,36.14,36.21,36.35,36.35,36.12,36.4,36.26,36.52,36.45,36.25,36.52,36.63,36.53,36.96,36.85,36.68,36.71,36.73,36.87,36.68,36.76,36.5,36.68],"type":"scatter"},{"customdata":["26-05-19","26-05-20","26-05-21","26-05-22","26-05-23","26-05-24","26-05-25","26-05-26","26-05-27","26-05-28","26-05-29","26-05-30","26-05-31","26-06-01","26-06-02","26-06-03","26-06-04","26-06-05","26-06-06","26-06-07","26-06-08","26-06-09","26-06-10","26-06-11","26-06-12","26-06-13","26-06-14","26-06-15","26-06-16","26-06-17","26-06-18"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(139, 224, 164)"},"mode":"lines+markers","name":"Cycle 8: 2026-05-19","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"y":[36.42,36.35,36.21,36.04,36.23,36.25,36.45,36.14,36.1,36.32,36.52,36.22,36.31,36.4,36.28,36.37,36.3,36.29,36.51,36.49,36.55,36.48,36.69,36.7,36.82,36.92,36.86,36.66,36.63,36.66,36.52],"type":"scatter"},{"customdata":["26-06-19","26-06-20","26-06-21","26-06-22","26-06-23","26-06-24","26-06-25","26-06-26","26-06-27","26-06-28","26-06-29","26-06-30","26-07-01","26-07-02","26-07-03","26-07-04","26-07-05","26-07-06","26-07-07","26-07-08","26-07-09","26-07-10","26-07-11","26-07-12","26-07-13","26-07-14","26-07-15","26-07-16","26-07-17","26-07-18","26-07-19"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(180, 151, 231)"},"mode":"lines+markers","name":"Cycle 9: 2026-06-19","x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],"y":[36.38,36.41,36.38,36.18,36.37,36.32,36.15,36.55,36.06,36.52,36.06,36.42,36.15,36.26,36.51,36.38,36.31,36.47,36.35,36.51,36.76,36.3,36.7,36.79,36.63,36.65,36.6,36.88,36.5,36.75,null],"type":"scatter"},{"customdata":["26-07-20","26-07-21","26-07-22","26-07-23","26-07-24","26-07-25","26-07-26"],"hovertemplate":"%{customdata}\u003cbr\u003ePeriod: %{x}\u003cbr\u003eBBT: %{y:.2f}\u2103\u003cextra\u003e\u003c\u002fextra\u003e","line":{"color":"rgb(179, 179, 179)"},"mode":"lines+markers","name":"Cycle 10: 2026-07-20","x":[1,2,3,4,5,6,7],"y":[36.32,35.92,36.36,36.22,36.38,36.07,36.25],"type":"scatter"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"margin":{"l":20,"r":20,"t":35,"b":20},"xaxis":{"title":{"text":"Period"},"showline":true,"linecolor":"gray","linewidth":1.2,"mirror":true,"range":[0,45]},"yaxis":{"title":{"text":"BBT [\u2103]"},"tickformat":".1f","showline":true,"linecolor":"gray","linewidth":1.2,"mirror":true,"range":[35.5,37.5]},"title":{},"autosize":true,"height":350,"plot_bgcolor":"rgba(253,253,255,1)","paper_bgcolor":"rgba(255,255,255,1)","shapes":[{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.55,"y1":35.55,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.599999999999994,"y1":35.599999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.64999999999999,"y1":35.64999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.69999999999999,"y1":35.69999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.749999999999986,"y1":35.749999999999986,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.79999999999998,"y1":35.79999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.84999999999998,"y1":35.84999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.89999999999998,"y1":35.89999999999998,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.949999999999974,"y1":35.949999999999974,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.99999999999997,"y1":35.99999999999997,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.04999999999997,"y1":36.04999999999997,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.099999999999966,"y1":36.099999999999966,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.14999999999996,"y1":36.14999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.19999999999996,"y1":36.19999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.24999999999996,"y1":36.24999999999996,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.299999999999955,"y1":36.299999999999955,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.34999999999995,"y1":36.34999999999995,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.39999999999995,"y1":36.39999999999995,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.449999999999946,"y1":36.449999999999946,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.49999999999994,"y1":36.49999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.54999999999994,"y1":36.54999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.59999999999994,"y1":36.59999999999994,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.649999999999935,"y1":36.649999999999935,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.69999999999993,"y1":36.69999999999993,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.74999999999993,"y1":36.74999999999993,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.799999999999926,"y1":36.799999999999926,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.84999999999992,"y1":36.84999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.89999999999992,"y1":36.89999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.94999999999992,"y1":36.94999999999992,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.999999999999915,"y1":36.999999999999915,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.04999999999991,"y1":37.04999999999991,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.09999999999991,"y1":37.09999999999991,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.149999999999906,"y1":37.149999999999906,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.1999999999999,"y1":37.1999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.2499999999999,"y1":37.2499999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.2999999999999,"y1":37.2999999999999,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.349999999999895,"y1":37.349999999999895,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.39999999999989,"y1":37.39999999999989,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.44999999999989,"y1":37.44999999999989,"yref":"y"},{"line":{"color":"gray","width":0.2},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.499999999999886,"y1":37.499999999999886,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.6,"y1":35.6,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.7,"y1":35.7,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.800000000000004,"y1":35.800000000000004,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.900000000000006,"y1":35.900000000000006,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.00000000000001,"y1":36.00000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.10000000000001,"y1":36.10000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.20000000000001,"y1":36.20000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.30000000000001,"y1":36.30000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.40000000000001,"y1":36.40000000000001,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.500000000000014,"y1":36.500000000000014,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.600000000000016,"y1":36.600000000000016,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.70000000000002,"y1":36.70000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.80000000000002,"y1":36.80000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.90000000000002,"y1":36.90000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.00000000000002,"y1":37.00000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.10000000000002,"y1":37.10000000000002,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.200000000000024,"y1":37.200000000000024,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.300000000000026,"y1":37.300000000000026,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.40000000000003,"y1":37.40000000000003,"yref":"y"},{"line":{"color":"gray","width":0.5},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.50000000000003,"y1":37.50000000000003,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":35.5,"y1":35.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.0,"y1":36.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.5,"y1":36.5,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.0,"y1":37.0,"yref":"y"},{"line":{"color":"gray","width":1.0},"opacity":0.3,"type":"line","x0":0,"x1":1,"xref":"x domain","y0":37.5,"y1":37.5,"yref":"y"},{"line":{"color":"gray","width":1},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":36.7,"y1":36.7,"yref":"y"}]},                        {"responsive": true}                    )                };            </script>        </div>
+    <script>
+      // Cycleごとの元データ
+      var cycleData = {"0": {"period": [1, 2, 3], "bbt": [null, null, null], "start_date": "25-09-10"}, "1": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], "bbt": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 36.39, 36.49, 36.46, 36.6, 36.95, 36.86, 37.16, 36.73, 36.8, 36.81, 36.93, 36.92, 36.96, 36.7, 36.68], "start_date": "25-09-13"}, "2": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33], "bbt": [36.4, 36.5, 36.42, 36.54, 36.53, 36.66, 36.49, 36.29, 36.27, 36.38, 36.4, 36.29, 36.57, 36.03, 36.49, 36.1, 36.48, 36.3, 36.39, 36.63, 36.35, 36.54, 36.45, 36.71, 36.89, 36.67, 36.63, 36.61, 36.72, 36.96, 36.93, 36.78, 36.79], "start_date": "25-10-14"}, "3": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35], "bbt": [36.57, 36.42, 36.36, 36.28, 36.23, 36.53, 36.29, 36.32, 36.26, 36.89, 36.46, 36.46, 36.3, 36.53, 36.22, 36.36, 36.37, 36.3, 36.25, 36.48, 36.63, 36.32, 36.48, 36.6, 36.62, 36.68, 36.74, 36.63, 36.74, 36.65, 36.58, 36.75, 36.72, 36.6, 36.75], "start_date": "25-11-16"}, "4": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36], "bbt": [36.49, 36.23, 36.35, 36.37, 36.31, 36.49, 36.34, 36.39, 36.54, 36.3, 36.41, 36.46, 36.42, 36.47, 36.22, 36.24, 36.48, 36.38, 36.34, 36.2, 36.33, 36.6, 36.36, 36.35, 36.61, 36.64, 36.78, 36.67, 36.79, 36.77, 36.91, 36.71, 36.66, 36.65, 36.78, 36.41], "start_date": "25-12-21"}, "5": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47], "bbt": [36.41, 36.41, 36.33, 36.41, 36.11, 36.21, 36.5, 36.35, 36.26, 36.36, 36.12, 37.99, 37.97, 39.11, 37.67, 36.76, 37.09, null, 36.3, 36.53, 36.34, 36.33, 36.06, 36.38, 36.36, 36.46, 36.41, 36.48, 36.51, 36.41, 36.59, 36.51, 36.37, 36.39, 36.28, 36.65, 36.7, 36.84, 36.73, 36.84, 36.9, 36.59, 36.84, 36.47, null, 36.78, 36.43], "start_date": "26-01-26"}, "6": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36], "bbt": [36.12, 36.7, 36.34, 36.2, 36.52, 36.42, 36.56, 36.36, 36.61, 36.46, 36.3, 36.32, 36.43, 36.23, 36.61, 36.59, 36.29, 36.51, 36.6, 36.39, 36.03, 36.58, 36.37, 36.14, 36.19, 36.51, 36.39, 36.68, 36.73, 36.71, 36.7, 36.75, 36.67, 36.63, 36.73, 36.56], "start_date": "26-03-14"}, "7": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30], "bbt": [36.41, 36.5, 36.57, 36.52, 36.29, 36.28, 36.24, 36.14, 36.21, 36.35, 36.35, 36.12, 36.4, 36.26, 36.52, 36.45, 36.25, 36.52, 36.63, 36.53, 36.96, 36.85, 36.68, 36.71, 36.73, 36.87, 36.68, 36.76, 36.5, 36.68], "start_date": "26-04-19"}, "8": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], "bbt": [36.42, 36.35, 36.21, 36.04, 36.23, 36.25, 36.45, 36.14, 36.1, 36.32, 36.52, 36.22, 36.31, 36.4, 36.28, 36.37, 36.3, 36.29, 36.51, 36.49, 36.55, 36.48, 36.69, 36.7, 36.82, 36.92, 36.86, 36.66, 36.63, 36.66, 36.52], "start_date": "26-05-19"}, "9": {"period": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], "bbt": [36.38, 36.41, 36.38, 36.18, 36.37, 36.32, 36.15, 36.55, 36.06, 36.52, 36.06, 36.42, 36.15, 36.26, 36.51, 36.38, 36.31, 36.47, 36.35, 36.51, 36.76, 36.3, 36.7, 36.79, 36.63, 36.65, 36.6, 36.88, 36.5, 36.75, null], "start_date": "26-06-19"}, "10": {"period": [1, 2, 3, 4, 5, 6, 7], "bbt": [36.32, 35.92, 36.36, 36.22, 36.38, 36.07, 36.25], "start_date": "26-07-20"}};
+    </script>
+    </div>
+            <div class="graph-box" id="plot_iqr"><div id="plot_iqr"></div></div>
+            <div class="graph-box" id="cycle_list"></div>   <!-- ← 追加 -->
+      </div>
+     <!-- Data テーブル -->
+        <div class="table-area" id="table_div"><table class="dataframe bbt-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Date</th>
+      <th>MeasureTime</th>
+      <th>BBT</th>
+      <th>PeriodStart</th>
+      <th>PeriodCycleID</th>
+      <th>PeriodCycle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2025-09-10</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2025-09-11</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2025-09-12</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2025-09-13</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2025-09-14</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2025-09-15</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2025-09-16</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2025-09-17</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2025-09-18</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2025-09-19</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2025-09-20</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2025-09-21</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2025-09-22</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2025-09-23</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2025-09-24</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2025-09-25</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2025-09-26</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2025-09-27</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2025-09-28</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>1</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2025-09-29</td>
+      <td>06:09:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>1</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2025-09-30</td>
+      <td>06:00:00</td>
+      <td>36.49</td>
+      <td>0</td>
+      <td>1</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2025-10-01</td>
+      <td>05:46:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>1</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2025-10-02</td>
+      <td>05:45:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>1</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2025-10-03</td>
+      <td>05:45:00</td>
+      <td>36.95</td>
+      <td>0</td>
+      <td>1</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2025-10-04</td>
+      <td>07:32:00</td>
+      <td>36.86</td>
+      <td>0</td>
+      <td>1</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2025-10-05</td>
+      <td>07:23:00</td>
+      <td>37.16</td>
+      <td>0</td>
+      <td>1</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2025-10-06</td>
+      <td>05:40:00</td>
+      <td>36.73</td>
+      <td>0</td>
+      <td>1</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2025-10-07</td>
+      <td>06:00:00</td>
+      <td>36.80</td>
+      <td>0</td>
+      <td>1</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2025-10-08</td>
+      <td>05:30:00</td>
+      <td>36.81</td>
+      <td>0</td>
+      <td>1</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2025-10-09</td>
+      <td>06:00:00</td>
+      <td>36.93</td>
+      <td>0</td>
+      <td>1</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2025-10-10</td>
+      <td>07:32:00</td>
+      <td>36.92</td>
+      <td>0</td>
+      <td>1</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2025-10-11</td>
+      <td>08:19:00</td>
+      <td>36.96</td>
+      <td>0</td>
+      <td>1</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2025-10-12</td>
+      <td>05:54:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>1</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2025-10-13</td>
+      <td>07:22:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>1</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2025-10-14</td>
+      <td>06:00:00</td>
+      <td>36.40</td>
+      <td>1</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2025-10-15</td>
+      <td>06:54:00</td>
+      <td>36.50</td>
+      <td>0</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2025-10-16</td>
+      <td>05:45:00</td>
+      <td>36.42</td>
+      <td>0</td>
+      <td>2</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2025-10-17</td>
+      <td>06:00:00</td>
+      <td>36.54</td>
+      <td>0</td>
+      <td>2</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2025-10-18</td>
+      <td>07:00:00</td>
+      <td>36.53</td>
+      <td>0</td>
+      <td>2</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2025-10-19</td>
+      <td>09:27:00</td>
+      <td>36.66</td>
+      <td>0</td>
+      <td>2</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2025-10-20</td>
+      <td>06:02:00</td>
+      <td>36.49</td>
+      <td>0</td>
+      <td>2</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2025-10-21</td>
+      <td>06:00:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>2</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2025-10-22</td>
+      <td>06:00:00</td>
+      <td>36.27</td>
+      <td>0</td>
+      <td>2</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2025-10-23</td>
+      <td>06:20:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>2</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2025-10-24</td>
+      <td>06:27:00</td>
+      <td>36.40</td>
+      <td>0</td>
+      <td>2</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2025-10-25</td>
+      <td>06:47:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>2</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2025-10-26</td>
+      <td>09:15:00</td>
+      <td>36.57</td>
+      <td>0</td>
+      <td>2</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2025-10-27</td>
+      <td>06:18:00</td>
+      <td>36.03</td>
+      <td>0</td>
+      <td>2</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2025-10-28</td>
+      <td>06:10:00</td>
+      <td>36.49</td>
+      <td>0</td>
+      <td>2</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2025-10-29</td>
+      <td>05:58:00</td>
+      <td>36.10</td>
+      <td>0</td>
+      <td>2</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2025-10-30</td>
+      <td>06:30:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>2</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>06:30:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>2</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2025-11-01</td>
+      <td>08:13:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>2</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2025-11-02</td>
+      <td>08:00:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>2</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2025-11-03</td>
+      <td>06:19:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>2</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2025-11-04</td>
+      <td>05:45:00</td>
+      <td>36.54</td>
+      <td>0</td>
+      <td>2</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2025-11-05</td>
+      <td>06:39:00</td>
+      <td>36.45</td>
+      <td>0</td>
+      <td>2</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2025-11-06</td>
+      <td>05:45:00</td>
+      <td>36.71</td>
+      <td>0</td>
+      <td>2</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2025-11-07</td>
+      <td>01:17:00</td>
+      <td>36.89</td>
+      <td>0</td>
+      <td>2</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2025-11-08</td>
+      <td>06:13:00</td>
+      <td>36.67</td>
+      <td>0</td>
+      <td>2</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2025-11-09</td>
+      <td>06:35:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>2</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2025-11-10</td>
+      <td>06:40:00</td>
+      <td>36.61</td>
+      <td>0</td>
+      <td>2</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2025-11-11</td>
+      <td>06:47:00</td>
+      <td>36.72</td>
+      <td>0</td>
+      <td>2</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2025-11-12</td>
+      <td>06:00:00</td>
+      <td>36.96</td>
+      <td>0</td>
+      <td>2</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2025-11-13</td>
+      <td>05:53:00</td>
+      <td>36.93</td>
+      <td>0</td>
+      <td>2</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2025-11-14</td>
+      <td>06:00:00</td>
+      <td>36.78</td>
+      <td>0</td>
+      <td>2</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>2025-11-15</td>
+      <td>07:25:00</td>
+      <td>36.79</td>
+      <td>0</td>
+      <td>2</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>2025-11-16</td>
+      <td>07:09:00</td>
+      <td>36.57</td>
+      <td>1</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2025-11-17</td>
+      <td>05:45:00</td>
+      <td>36.42</td>
+      <td>0</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2025-11-18</td>
+      <td>06:01:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2025-11-19</td>
+      <td>05:45:00</td>
+      <td>36.28</td>
+      <td>0</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2025-11-20</td>
+      <td>05:54:00</td>
+      <td>36.23</td>
+      <td>0</td>
+      <td>3</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2025-11-21</td>
+      <td>05:55:00</td>
+      <td>36.53</td>
+      <td>0</td>
+      <td>3</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2025-11-22</td>
+      <td>07:05:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>3</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2025-11-23</td>
+      <td>06:00:00</td>
+      <td>36.32</td>
+      <td>0</td>
+      <td>3</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2025-11-24</td>
+      <td>06:24:00</td>
+      <td>36.26</td>
+      <td>0</td>
+      <td>3</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2025-11-25</td>
+      <td>05:54:00</td>
+      <td>36.89</td>
+      <td>0</td>
+      <td>3</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2025-11-26</td>
+      <td>06:44:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>3</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2025-11-27</td>
+      <td>05:45:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>3</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2025-11-28</td>
+      <td>06:00:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>3</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2025-11-29</td>
+      <td>04:57:00</td>
+      <td>36.53</td>
+      <td>0</td>
+      <td>3</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2025-11-30</td>
+      <td>08:25:00</td>
+      <td>36.22</td>
+      <td>0</td>
+      <td>3</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2025-12-01</td>
+      <td>06:28:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>3</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2025-12-02</td>
+      <td>06:03:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>3</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2025-12-03</td>
+      <td>06:30:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>3</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2025-12-04</td>
+      <td>06:30:00</td>
+      <td>36.25</td>
+      <td>0</td>
+      <td>3</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2025-12-05</td>
+      <td>06:00:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>3</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2025-12-06</td>
+      <td>09:30:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>3</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2025-12-07</td>
+      <td>08:10:00</td>
+      <td>36.32</td>
+      <td>0</td>
+      <td>3</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2025-12-08</td>
+      <td>05:52:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>3</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2025-12-09</td>
+      <td>06:18:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>3</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2025-12-10</td>
+      <td>06:09:00</td>
+      <td>36.62</td>
+      <td>0</td>
+      <td>3</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2025-12-11</td>
+      <td>06:01:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>3</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2025-12-12</td>
+      <td>06:10:00</td>
+      <td>36.74</td>
+      <td>0</td>
+      <td>3</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2025-12-13</td>
+      <td>06:36:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>3</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2025-12-14</td>
+      <td>08:00:00</td>
+      <td>36.74</td>
+      <td>0</td>
+      <td>3</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2025-12-15</td>
+      <td>06:00:00</td>
+      <td>36.65</td>
+      <td>0</td>
+      <td>3</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2025-12-16</td>
+      <td>05:30:00</td>
+      <td>36.58</td>
+      <td>0</td>
+      <td>3</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2025-12-17</td>
+      <td>07:00:00</td>
+      <td>36.75</td>
+      <td>0</td>
+      <td>3</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>2025-12-18</td>
+      <td>05:45:00</td>
+      <td>36.72</td>
+      <td>0</td>
+      <td>3</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>2025-12-19</td>
+      <td>05:54:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>3</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <td>2025-12-20</td>
+      <td>08:10:00</td>
+      <td>36.75</td>
+      <td>0</td>
+      <td>3</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <td>2025-12-21</td>
+      <td>08:03:00</td>
+      <td>36.49</td>
+      <td>1</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2025-12-22</td>
+      <td>05:55:00</td>
+      <td>36.23</td>
+      <td>0</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2025-12-23</td>
+      <td>06:40:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2025-12-24</td>
+      <td>05:40:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2025-12-25</td>
+      <td>06:00:00</td>
+      <td>36.31</td>
+      <td>0</td>
+      <td>4</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2025-12-26</td>
+      <td>07:48:00</td>
+      <td>36.49</td>
+      <td>0</td>
+      <td>4</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2025-12-27</td>
+      <td>07:56:00</td>
+      <td>36.34</td>
+      <td>0</td>
+      <td>4</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2025-12-28</td>
+      <td>08:29:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>4</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2025-12-29</td>
+      <td>06:48:00</td>
+      <td>36.54</td>
+      <td>0</td>
+      <td>4</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2025-12-30</td>
+      <td>07:02:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>4</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2025-12-31</td>
+      <td>07:38:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>4</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-01-01</td>
+      <td>11:56:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>4</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-01-02</td>
+      <td>07:59:00</td>
+      <td>36.42</td>
+      <td>0</td>
+      <td>4</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-01-03</td>
+      <td>08:03:00</td>
+      <td>36.47</td>
+      <td>0</td>
+      <td>4</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-01-04</td>
+      <td>08:28:00</td>
+      <td>36.22</td>
+      <td>0</td>
+      <td>4</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-01-05</td>
+      <td>06:00:00</td>
+      <td>36.24</td>
+      <td>0</td>
+      <td>4</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-01-06</td>
+      <td>04:24:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>4</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-01-07</td>
+      <td>05:54:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>4</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-01-08</td>
+      <td>06:09:00</td>
+      <td>36.34</td>
+      <td>0</td>
+      <td>4</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-01-09</td>
+      <td>06:13:00</td>
+      <td>36.20</td>
+      <td>0</td>
+      <td>4</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-01-10</td>
+      <td>07:33:00</td>
+      <td>36.33</td>
+      <td>0</td>
+      <td>4</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-01-11</td>
+      <td>09:00:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>4</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-01-12</td>
+      <td>06:00:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>4</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-01-13</td>
+      <td>06:09:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>4</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-01-14</td>
+      <td>07:15:00</td>
+      <td>36.61</td>
+      <td>0</td>
+      <td>4</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-01-15</td>
+      <td>05:55:00</td>
+      <td>36.64</td>
+      <td>0</td>
+      <td>4</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>06:10:00</td>
+      <td>36.78</td>
+      <td>0</td>
+      <td>4</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-01-17</td>
+      <td>08:09:00</td>
+      <td>36.67</td>
+      <td>0</td>
+      <td>4</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-01-18</td>
+      <td>08:00:00</td>
+      <td>36.79</td>
+      <td>0</td>
+      <td>4</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-01-19</td>
+      <td>05:14:00</td>
+      <td>36.77</td>
+      <td>0</td>
+      <td>4</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-01-20</td>
+      <td>06:03:00</td>
+      <td>36.91</td>
+      <td>0</td>
+      <td>4</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2026-01-21</td>
+      <td>06:23:00</td>
+      <td>36.71</td>
+      <td>0</td>
+      <td>4</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>2026-01-22</td>
+      <td>06:15:00</td>
+      <td>36.66</td>
+      <td>0</td>
+      <td>4</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>2026-01-23</td>
+      <td>06:16:00</td>
+      <td>36.65</td>
+      <td>0</td>
+      <td>4</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <td>2026-01-24</td>
+      <td>06:09:00</td>
+      <td>36.78</td>
+      <td>0</td>
+      <td>4</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <td>2026-01-25</td>
+      <td>07:06:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>4</td>
+      <td>36</td>
+    </tr>
+    <tr>
+      <td>2026-01-26</td>
+      <td>07:40:00</td>
+      <td>36.41</td>
+      <td>1</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-01-27</td>
+      <td>06:39:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>5</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-01-28</td>
+      <td>06:00:00</td>
+      <td>36.33</td>
+      <td>0</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-01-29</td>
+      <td>06:33:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>5</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-01-30</td>
+      <td>07:15:00</td>
+      <td>36.11</td>
+      <td>0</td>
+      <td>5</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-01-31</td>
+      <td>07:00:00</td>
+      <td>36.21</td>
+      <td>0</td>
+      <td>5</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-02-01</td>
+      <td>07:00:00</td>
+      <td>36.50</td>
+      <td>0</td>
+      <td>5</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2026-02-02</td>
+      <td>06:49:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>5</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2026-02-03</td>
+      <td>06:40:00</td>
+      <td>36.26</td>
+      <td>0</td>
+      <td>5</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2026-02-04</td>
+      <td>06:43:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>5</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2026-02-05</td>
+      <td>06:10:00</td>
+      <td>36.12</td>
+      <td>0</td>
+      <td>5</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-02-06</td>
+      <td>06:48:00</td>
+      <td>37.99</td>
+      <td>0</td>
+      <td>5</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-02-07</td>
+      <td>07:22:00</td>
+      <td>37.97</td>
+      <td>0</td>
+      <td>5</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-02-08</td>
+      <td>05:13:00</td>
+      <td>39.11</td>
+      <td>0</td>
+      <td>5</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-02-09</td>
+      <td>08:00:00</td>
+      <td>37.67</td>
+      <td>0</td>
+      <td>5</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-02-10</td>
+      <td>08:07:00</td>
+      <td>36.76</td>
+      <td>0</td>
+      <td>5</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-02-11</td>
+      <td>09:03:00</td>
+      <td>37.09</td>
+      <td>0</td>
+      <td>5</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-02-12</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>5</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-02-13</td>
+      <td>07:08:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>5</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-02-14</td>
+      <td>08:00:00</td>
+      <td>36.53</td>
+      <td>0</td>
+      <td>5</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-02-15</td>
+      <td>07:43:00</td>
+      <td>36.34</td>
+      <td>0</td>
+      <td>5</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-02-16</td>
+      <td>06:30:00</td>
+      <td>36.33</td>
+      <td>0</td>
+      <td>5</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-02-17</td>
+      <td>06:18:00</td>
+      <td>36.06</td>
+      <td>0</td>
+      <td>5</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-02-18</td>
+      <td>06:33:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>5</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-02-19</td>
+      <td>06:37:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>5</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-02-20</td>
+      <td>06:30:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>5</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-02-21</td>
+      <td>07:00:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>5</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-02-22</td>
+      <td>07:00:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>5</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-02-23</td>
+      <td>06:09:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>5</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-02-24</td>
+      <td>06:31:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>5</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-02-25</td>
+      <td>07:11:00</td>
+      <td>36.59</td>
+      <td>0</td>
+      <td>5</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2026-02-26</td>
+      <td>06:40:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>5</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>2026-02-27</td>
+      <td>07:02:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>5</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>2026-02-28</td>
+      <td>06:00:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>5</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <td>2026-03-01</td>
+      <td>06:00:00</td>
+      <td>36.28</td>
+      <td>0</td>
+      <td>5</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <td>2026-03-02</td>
+      <td>06:59:00</td>
+      <td>36.65</td>
+      <td>0</td>
+      <td>5</td>
+      <td>36</td>
+    </tr>
+    <tr>
+      <td>2026-03-03</td>
+      <td>07:26:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>5</td>
+      <td>37</td>
+    </tr>
+    <tr>
+      <td>2026-03-04</td>
+      <td>07:00:00</td>
+      <td>36.84</td>
+      <td>0</td>
+      <td>5</td>
+      <td>38</td>
+    </tr>
+    <tr>
+      <td>2026-03-05</td>
+      <td>06:16:00</td>
+      <td>36.73</td>
+      <td>0</td>
+      <td>5</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <td>2026-03-06</td>
+      <td>07:45:00</td>
+      <td>36.84</td>
+      <td>0</td>
+      <td>5</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <td>2026-03-07</td>
+      <td>07:31:00</td>
+      <td>36.90</td>
+      <td>0</td>
+      <td>5</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <td>2026-03-08</td>
+      <td>08:15:00</td>
+      <td>36.59</td>
+      <td>0</td>
+      <td>5</td>
+      <td>42</td>
+    </tr>
+    <tr>
+      <td>2026-03-09</td>
+      <td>06:10:00</td>
+      <td>36.84</td>
+      <td>0</td>
+      <td>5</td>
+      <td>43</td>
+    </tr>
+    <tr>
+      <td>2026-03-10</td>
+      <td>06:24:00</td>
+      <td>36.47</td>
+      <td>0</td>
+      <td>5</td>
+      <td>44</td>
+    </tr>
+    <tr>
+      <td>2026-03-11</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>5</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <td>2026-03-12</td>
+      <td>06:04:00</td>
+      <td>36.78</td>
+      <td>0</td>
+      <td>5</td>
+      <td>46</td>
+    </tr>
+    <tr>
+      <td>2026-03-13</td>
+      <td>06:30:00</td>
+      <td>36.43</td>
+      <td>0</td>
+      <td>5</td>
+      <td>47</td>
+    </tr>
+    <tr>
+      <td>2026-03-14</td>
+      <td>07:00:00</td>
+      <td>36.12</td>
+      <td>1</td>
+      <td>6</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-03-15</td>
+      <td>06:52:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>6</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-03-16</td>
+      <td>06:39:00</td>
+      <td>36.34</td>
+      <td>0</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-03-17</td>
+      <td>05:19:00</td>
+      <td>36.20</td>
+      <td>0</td>
+      <td>6</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-03-18</td>
+      <td>07:41:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>6</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-03-19</td>
+      <td>06:54:00</td>
+      <td>36.42</td>
+      <td>0</td>
+      <td>6</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-03-20</td>
+      <td>06:09:00</td>
+      <td>36.56</td>
+      <td>0</td>
+      <td>6</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2026-03-21</td>
+      <td>07:00:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>6</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2026-03-22</td>
+      <td>08:10:00</td>
+      <td>36.61</td>
+      <td>0</td>
+      <td>6</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2026-03-23</td>
+      <td>06:01:00</td>
+      <td>36.46</td>
+      <td>0</td>
+      <td>6</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2026-03-24</td>
+      <td>06:10:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>6</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-03-25</td>
+      <td>05:46:00</td>
+      <td>36.32</td>
+      <td>0</td>
+      <td>6</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-03-26</td>
+      <td>06:30:00</td>
+      <td>36.43</td>
+      <td>0</td>
+      <td>6</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-03-27</td>
+      <td>06:09:00</td>
+      <td>36.23</td>
+      <td>0</td>
+      <td>6</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-03-28</td>
+      <td>07:23:00</td>
+      <td>36.61</td>
+      <td>0</td>
+      <td>6</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-03-29</td>
+      <td>08:02:00</td>
+      <td>36.59</td>
+      <td>0</td>
+      <td>6</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-03-30</td>
+      <td>05:45:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>6</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-03-31</td>
+      <td>05:45:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>6</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-04-01</td>
+      <td>07:01:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>6</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-04-02</td>
+      <td>06:03:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>6</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-04-03</td>
+      <td>06:31:00</td>
+      <td>36.03</td>
+      <td>0</td>
+      <td>6</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-04-04</td>
+      <td>08:01:00</td>
+      <td>36.58</td>
+      <td>0</td>
+      <td>6</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-04-05</td>
+      <td>05:32:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>6</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-04-06</td>
+      <td>05:45:00</td>
+      <td>36.14</td>
+      <td>0</td>
+      <td>6</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-04-07</td>
+      <td>05:45:00</td>
+      <td>36.19</td>
+      <td>0</td>
+      <td>6</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-04-08</td>
+      <td>06:45:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>6</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-04-09</td>
+      <td>05:54:00</td>
+      <td>36.39</td>
+      <td>0</td>
+      <td>6</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-04-10</td>
+      <td>06:43:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>6</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-04-11</td>
+      <td>08:00:00</td>
+      <td>36.73</td>
+      <td>0</td>
+      <td>6</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-04-12</td>
+      <td>08:15:00</td>
+      <td>36.71</td>
+      <td>0</td>
+      <td>6</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-04-13</td>
+      <td>06:30:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>6</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2026-04-14</td>
+      <td>06:01:00</td>
+      <td>36.75</td>
+      <td>0</td>
+      <td>6</td>
+      <td>32</td>
+    </tr>
+    <tr>
+      <td>2026-04-15</td>
+      <td>06:41:00</td>
+      <td>36.67</td>
+      <td>0</td>
+      <td>6</td>
+      <td>33</td>
+    </tr>
+    <tr>
+      <td>2026-04-16</td>
+      <td>06:30:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>6</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <td>2026-04-17</td>
+      <td>06:37:00</td>
+      <td>36.73</td>
+      <td>0</td>
+      <td>6</td>
+      <td>35</td>
+    </tr>
+    <tr>
+      <td>2026-04-18</td>
+      <td>07:09:00</td>
+      <td>36.56</td>
+      <td>0</td>
+      <td>6</td>
+      <td>36</td>
+    </tr>
+    <tr>
+      <td>2026-04-19</td>
+      <td>06:44:00</td>
+      <td>36.41</td>
+      <td>1</td>
+      <td>7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-04-20</td>
+      <td>05:55:00</td>
+      <td>36.50</td>
+      <td>0</td>
+      <td>7</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-04-21</td>
+      <td>07:15:00</td>
+      <td>36.57</td>
+      <td>0</td>
+      <td>7</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-04-22</td>
+      <td>06:48:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>7</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-04-23</td>
+      <td>07:27:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>7</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-04-24</td>
+      <td>06:27:00</td>
+      <td>36.28</td>
+      <td>0</td>
+      <td>7</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-04-25</td>
+      <td>08:46:00</td>
+      <td>36.24</td>
+      <td>0</td>
+      <td>7</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2026-04-26</td>
+      <td>07:52:00</td>
+      <td>36.14</td>
+      <td>0</td>
+      <td>7</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2026-04-27</td>
+      <td>06:31:00</td>
+      <td>36.21</td>
+      <td>0</td>
+      <td>7</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2026-04-28</td>
+      <td>06:01:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>7</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2026-04-29</td>
+      <td>06:30:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>7</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-04-30</td>
+      <td>07:01:00</td>
+      <td>36.12</td>
+      <td>0</td>
+      <td>7</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-05-01</td>
+      <td>07:06:00</td>
+      <td>36.40</td>
+      <td>0</td>
+      <td>7</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-05-02</td>
+      <td>08:00:00</td>
+      <td>36.26</td>
+      <td>0</td>
+      <td>7</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-05-03</td>
+      <td>08:28:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>7</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-05-04</td>
+      <td>09:00:00</td>
+      <td>36.45</td>
+      <td>0</td>
+      <td>7</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-05-05</td>
+      <td>07:55:00</td>
+      <td>36.25</td>
+      <td>0</td>
+      <td>7</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-05-06</td>
+      <td>08:00:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>7</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-05-07</td>
+      <td>06:30:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>7</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-05-08</td>
+      <td>07:19:00</td>
+      <td>36.53</td>
+      <td>0</td>
+      <td>7</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-05-09</td>
+      <td>07:00:00</td>
+      <td>36.96</td>
+      <td>0</td>
+      <td>7</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-05-10</td>
+      <td>06:41:00</td>
+      <td>36.85</td>
+      <td>0</td>
+      <td>7</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-05-11</td>
+      <td>06:31:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>7</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-05-12</td>
+      <td>06:30:00</td>
+      <td>36.71</td>
+      <td>0</td>
+      <td>7</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-05-13</td>
+      <td>06:35:00</td>
+      <td>36.73</td>
+      <td>0</td>
+      <td>7</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-05-14</td>
+      <td>06:30:00</td>
+      <td>36.87</td>
+      <td>0</td>
+      <td>7</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-05-15</td>
+      <td>06:30:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>7</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-05-16</td>
+      <td>07:47:00</td>
+      <td>36.76</td>
+      <td>0</td>
+      <td>7</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-05-17</td>
+      <td>06:35:00</td>
+      <td>36.50</td>
+      <td>0</td>
+      <td>7</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-05-18</td>
+      <td>06:40:00</td>
+      <td>36.68</td>
+      <td>0</td>
+      <td>7</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-05-19</td>
+      <td>07:00:00</td>
+      <td>36.42</td>
+      <td>1</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-05-20</td>
+      <td>06:00:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>8</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-05-21</td>
+      <td>06:01:00</td>
+      <td>36.21</td>
+      <td>0</td>
+      <td>8</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-05-22</td>
+      <td>05:01:00</td>
+      <td>36.04</td>
+      <td>0</td>
+      <td>8</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-05-23</td>
+      <td>07:34:00</td>
+      <td>36.23</td>
+      <td>0</td>
+      <td>8</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-05-24</td>
+      <td>07:15:00</td>
+      <td>36.25</td>
+      <td>0</td>
+      <td>8</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-05-25</td>
+      <td>05:46:00</td>
+      <td>36.45</td>
+      <td>0</td>
+      <td>8</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2026-05-26</td>
+      <td>06:37:00</td>
+      <td>36.14</td>
+      <td>0</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2026-05-27</td>
+      <td>05:45:00</td>
+      <td>36.10</td>
+      <td>0</td>
+      <td>8</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2026-05-28</td>
+      <td>07:06:00</td>
+      <td>36.32</td>
+      <td>0</td>
+      <td>8</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2026-05-29</td>
+      <td>05:45:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>8</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-05-30</td>
+      <td>06:46:00</td>
+      <td>36.22</td>
+      <td>0</td>
+      <td>8</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-05-31</td>
+      <td>06:51:00</td>
+      <td>36.31</td>
+      <td>0</td>
+      <td>8</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-06-01</td>
+      <td>07:01:00</td>
+      <td>36.40</td>
+      <td>0</td>
+      <td>8</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-06-02</td>
+      <td>06:36:00</td>
+      <td>36.28</td>
+      <td>0</td>
+      <td>8</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-06-03</td>
+      <td>06:00:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>8</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-06-04</td>
+      <td>06:09:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>8</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-06-05</td>
+      <td>06:24:00</td>
+      <td>36.29</td>
+      <td>0</td>
+      <td>8</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-06-06</td>
+      <td>08:39:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>8</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-06-07</td>
+      <td>08:01:00</td>
+      <td>36.49</td>
+      <td>0</td>
+      <td>8</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-06-08</td>
+      <td>05:51:00</td>
+      <td>36.55</td>
+      <td>0</td>
+      <td>8</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-06-09</td>
+      <td>05:59:00</td>
+      <td>36.48</td>
+      <td>0</td>
+      <td>8</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-06-10</td>
+      <td>06:01:00</td>
+      <td>36.69</td>
+      <td>0</td>
+      <td>8</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-06-11</td>
+      <td>07:15:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>8</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-06-12</td>
+      <td>05:50:00</td>
+      <td>36.82</td>
+      <td>0</td>
+      <td>8</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-06-13</td>
+      <td>04:55:00</td>
+      <td>36.92</td>
+      <td>0</td>
+      <td>8</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-06-14</td>
+      <td>07:01:00</td>
+      <td>36.86</td>
+      <td>0</td>
+      <td>8</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-06-15</td>
+      <td>05:50:00</td>
+      <td>36.66</td>
+      <td>0</td>
+      <td>8</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-06-16</td>
+      <td>06:11:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>8</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-06-17</td>
+      <td>06:00:00</td>
+      <td>36.66</td>
+      <td>0</td>
+      <td>8</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-06-18</td>
+      <td>07:41:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>8</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2026-06-19</td>
+      <td>04:58:00</td>
+      <td>36.38</td>
+      <td>1</td>
+      <td>9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-06-20</td>
+      <td>08:02:00</td>
+      <td>36.41</td>
+      <td>0</td>
+      <td>9</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-06-21</td>
+      <td>07:30:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>9</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-06-22</td>
+      <td>06:42:00</td>
+      <td>36.18</td>
+      <td>0</td>
+      <td>9</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-06-23</td>
+      <td>06:33:00</td>
+      <td>36.37</td>
+      <td>0</td>
+      <td>9</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-06-24</td>
+      <td>06:00:00</td>
+      <td>36.32</td>
+      <td>0</td>
+      <td>9</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-06-25</td>
+      <td>05:50:00</td>
+      <td>36.15</td>
+      <td>0</td>
+      <td>9</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>2026-06-26</td>
+      <td>07:38:00</td>
+      <td>36.55</td>
+      <td>0</td>
+      <td>9</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>2026-06-27</td>
+      <td>06:31:00</td>
+      <td>36.06</td>
+      <td>0</td>
+      <td>9</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>2026-06-28</td>
+      <td>08:06:00</td>
+      <td>36.52</td>
+      <td>0</td>
+      <td>9</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>2026-06-29</td>
+      <td>05:47:00</td>
+      <td>36.06</td>
+      <td>0</td>
+      <td>9</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>2026-06-30</td>
+      <td>07:01:00</td>
+      <td>36.42</td>
+      <td>0</td>
+      <td>9</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <td>2026-07-01</td>
+      <td>05:51:00</td>
+      <td>36.15</td>
+      <td>0</td>
+      <td>9</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <td>2026-07-02</td>
+      <td>05:51:00</td>
+      <td>36.26</td>
+      <td>0</td>
+      <td>9</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>2026-07-03</td>
+      <td>04:03:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>9</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <td>2026-07-04</td>
+      <td>08:30:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>9</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <td>2026-07-05</td>
+      <td>08:18:00</td>
+      <td>36.31</td>
+      <td>0</td>
+      <td>9</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>2026-07-06</td>
+      <td>06:40:00</td>
+      <td>36.47</td>
+      <td>0</td>
+      <td>9</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>2026-07-07</td>
+      <td>05:51:00</td>
+      <td>36.35</td>
+      <td>0</td>
+      <td>9</td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>2026-07-08</td>
+      <td>05:59:00</td>
+      <td>36.51</td>
+      <td>0</td>
+      <td>9</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <td>2026-07-09</td>
+      <td>07:00:00</td>
+      <td>36.76</td>
+      <td>0</td>
+      <td>9</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <td>2026-07-10</td>
+      <td>06:00:00</td>
+      <td>36.30</td>
+      <td>0</td>
+      <td>9</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>2026-07-11</td>
+      <td>07:29:00</td>
+      <td>36.70</td>
+      <td>0</td>
+      <td>9</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <td>2026-07-12</td>
+      <td>05:47:00</td>
+      <td>36.79</td>
+      <td>0</td>
+      <td>9</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>2026-07-13</td>
+      <td>05:51:00</td>
+      <td>36.63</td>
+      <td>0</td>
+      <td>9</td>
+      <td>25</td>
+    </tr>
+    <tr>
+      <td>2026-07-14</td>
+      <td>05:50:00</td>
+      <td>36.65</td>
+      <td>0</td>
+      <td>9</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>2026-07-15</td>
+      <td>05:50:00</td>
+      <td>36.60</td>
+      <td>0</td>
+      <td>9</td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>2026-07-16</td>
+      <td>04:02:00</td>
+      <td>36.88</td>
+      <td>0</td>
+      <td>9</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <td>2026-07-17</td>
+      <td>05:30:00</td>
+      <td>36.50</td>
+      <td>0</td>
+      <td>9</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <td>2026-07-18</td>
+      <td>06:31:00</td>
+      <td>36.75</td>
+      <td>0</td>
+      <td>9</td>
+      <td>30</td>
+    </tr>
+    <tr>
+      <td>2026-07-19</td>
+      <td>None</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>9</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <td>2026-07-20</td>
+      <td>04:26:00</td>
+      <td>36.32</td>
+      <td>1</td>
+      <td>10</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2026-07-21</td>
+      <td>05:50:00</td>
+      <td>35.92</td>
+      <td>0</td>
+      <td>10</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>2026-07-22</td>
+      <td>07:00:00</td>
+      <td>36.36</td>
+      <td>0</td>
+      <td>10</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>2026-07-23</td>
+      <td>05:50:00</td>
+      <td>36.22</td>
+      <td>0</td>
+      <td>10</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>2026-07-24</td>
+      <td>06:00:00</td>
+      <td>36.38</td>
+      <td>0</td>
+      <td>10</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>2026-07-25</td>
+      <td>07:28:00</td>
+      <td>36.07</td>
+      <td>0</td>
+      <td>10</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>2026-07-26</td>
+      <td>08:00:00</td>
+      <td>36.25</td>
+      <td>0</td>
+      <td>10</td>
+      <td>7</td>
+    </tr>
+  </tbody>
+</table></div>
+  
+    </div>
+    
+    <script>
+    function updateDashboard() {
+        const pw = prompt("更新パスワードを入力してください");
+        const correct_pw = "italin1103";
+    
+        if (pw === correct_pw) {
+            // Flask サーバーにアクセスして Main.py を実行
+            fetch("http://127.0.0.1:5000/update")
+                .then(() => {
+                    alert("更新完了！");
+                    location.reload();  // ← 開いているタブを自動リロード
+                })
+                .catch(() => {
+                    alert("更新サーバーに接続できませんでした");
+                });
+        } else {
+            alert("パスワードが違います。更新は実行されません。");
+        }
+    }
+    </script>
+
+
+
+
+    <script>
+      // 有効な CycleID の集合（最初は全部ON）
+      let activeCycles = new Set();
+      for (const cid in cycleData) {
+        activeCycles.add(Number(cid));
+        }
+    </script>
+
+    
+    <script>
+    // チェックボックス生成
+    function buildCycleList() {
+      const listDiv = document.getElementById("cycle_list");
+      listDiv.innerHTML = "<b>Cycle Select</b><br>";
+    
+      for (const cid in cycleData) {
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.value = cid;
+        checkbox.id = "cycle_check_" + cid;
+    
+        checkbox.addEventListener("change", function() {
+          const id = Number(this.value);
+          if (this.checked) {
+            activeCycles.add(id);
+          } else {
+            activeCycles.delete(id);
+          }
+          updateCycleVisibility();
+          updateIQRPlot();
+        });
+    
+        const label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        const startDate = cycleData[cid].start_date;
+        label.innerText = `Cycle ${cid}: ${startDate}`;
+    
+        listDiv.appendChild(checkbox);
+        listDiv.appendChild(label);
+        listDiv.appendChild(document.createElement("br"));
+      }
+
+      // --- All チェック ---
+    const allBox = document.createElement("input");
+    allBox.type = "checkbox";
+    allBox.checked = true;
+    allBox.id = "cycle_check_all";
+    
+    allBox.addEventListener("change", function() {
+      const checked = this.checked;
+      for (const cid in cycleData) {
+        const box = document.getElementById("cycle_check_" + cid);
+        box.checked = checked;
+    
+        if (checked) activeCycles.add(Number(cid));
+        else activeCycles.delete(Number(cid));
+      }
+      updateIQRPlot();
+    });
+    
+    const allLabel = document.createElement("label");
+    allLabel.htmlFor = "cycle_check_all";
+    allLabel.innerText = "All";
+    
+    listDiv.appendChild(document.createElement("br"));
+    listDiv.appendChild(allBox);
+    listDiv.appendChild(allLabel);
+
+    }
+    </script>
+
+
+
+    
+    <script>
+    function computeQuantile(arr, q) {
+      if (arr.length === 0) return NaN;
+      const sorted = [...arr].sort((a, b) => a - b);
+      const pos = (sorted.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      } else {
+        return sorted[base];
+      }
+    }
+    
+    function updateIQRPlot() {
+      // activeCycles に含まれる Cycle のデータだけで IQR を計算
+      const periodMap = {};  // period -> [bbt, bbt, ...]
+    
+      activeCycles.forEach(cid => {
+        const data = cycleData[cid];
+        if (!data) return;
+        data.period.forEach((p, idx) => {
+          const b = data.bbt[idx];
+          if (b == null || isNaN(b)) return; //追加
+          if (!periodMap[p]) periodMap[p] = [];
+          periodMap[p].push(b);
+        });
+      });
+    
+      const x = [];
+      const p0 = [];
+      const p10 = [];
+      const p25 = [];
+      const p40 = [];
+      const med = [];
+      const p60 = [];
+      const p75 = [];
+      const p90 = [];
+      const p100 = [];
+        
+      Object.keys(periodMap).sort((a, b) => Number(a) - Number(b)).forEach(k => {
+        const arr = periodMap[k];
+        x.push(Number(k));
+        const safe = q => {
+          const v = computeQuantile(arr, q);
+          return isNaN(v) ? null : v;
+        };
+        p0.push(safe(0.00)); //p0.push(computeQuantile(arr, 0.00));
+        p10.push(safe(0.10)); //p10.push(computeQuantile(arr, 0.10));
+        p25.push(safe(0.25)); //p25.push(computeQuantile(arr, 0.25));
+        p40.push(safe(0.40)); //p40.push(computeQuantile(arr, 0.40));
+        med.push(safe(0.50)); //med.push(computeQuantile(arr, 0.50));
+        p60.push(safe(0.60)); //p60.push(computeQuantile(arr, 0.60));
+        p75.push(safe(0.75)); //p75.push(computeQuantile(arr, 0.75));
+        p90.push(safe(0.90)); //p90.push(computeQuantile(arr, 0.90));
+        p100.push(safe(1.00)); //p100.push(computeQuantile(arr, 1.00));
+      });
+
+      // 色設定
+      const color_0_100 = "rgba(173,216,230,0.4)";
+      const color_10_90 = "rgba(255,200,120,0.4)";
+      const color_25_75 = "rgba(144,238,144,0.4)";
+      const color_40_60 = "rgba(255,160,160,0.4)";
+    
+      // shapes（帯）
+      const shapes = [];
+      for (let i = 0; i < x.length; i++) {
+        // ★ データがない Period は無視する
+        if (
+            p0[i] == null || p10[i] == null || p25[i] == null ||
+            p40[i] == null || med[i] == null || p60[i] == null ||
+            p75[i] == null || p90[i] == null || p100[i] == null
+        ) {
+            continue;  // ← この Period は描画しない
+        }
+        const x0 = x[i];
+        const x1 = x0 + 1;
+        //if (p0[i] == null) continue;
+    
+        shapes.push({
+          type: "rect",
+          x0: x0, x1: x1,
+          y0: p0[i], y1: p100[i],
+          fillcolor: color_0_100,
+          line: { width: 0 },
+          layer: "below"
+        });
+    
+        shapes.push({
+          type: "rect",
+          x0: x0, x1: x1,
+          y0: p10[i], y1: p90[i],
+          fillcolor: color_10_90,
+          line: { width: 0 },
+          layer: "below"
+        });
+    
+        shapes.push({
+          type: "rect",
+          x0: x0, x1: x1,
+          y0: p25[i], y1: p75[i],
+          fillcolor: color_25_75,
+          line: { width: 0 },
+          layer: "below"
+        });
+    
+        shapes.push({
+          type: "rect",
+          x0: x0, x1: x1,
+          y0: p40[i], y1: p60[i],
+          fillcolor: color_40_60,
+          line: { width: 0 },
+          layer: "below"
+        });
+      }
+    
+      // Median の線
+      const traceMedian = {
+        x: x,
+        y: med,
+        mode: "lines",
+        line: { color: "black", width: 2 },
+        name: "Median"
+      };
+
+        const legendTraces = [
+            {x: [null], y: [null], mode: "lines", line: {color: color_0_100, width: 10}, name: "0–100%"},
+            {x: [null], y: [null], mode: "lines", line: {color: color_10_90, width: 10}, name: "10–90%"},
+            {x: [null], y: [null], mode: "lines", line: {color: color_25_75, width: 10}, name: "25–75% (IQR)"},
+            {x: [null], y: [null], mode: "lines", line: {color: color_40_60, width: 10}, name: "40–60%"}
+          ];
+
+    
+      // レイアウト
+      const layout = {
+        title: null,
+        autosize: true,
+        height: 350,
+        margin: { l: 20, r: 20, t: 35, b: 20 },
+        plot_bgcolor: "rgba(253,253,255,1)",
+        paper_bgcolor: "rgba(255,255,255,1)",
+        xaxis: {
+          title: "Period",
+          range: [0, 45],
+          showline: true,
+          linecolor: "gray",
+          linewidth: 1.2,
+          mirror: true
+        },
+        yaxis: {
+          title: "BBT [℃]",
+          range: [35.5, 37.5],
+          tickformat: ".1f",
+          showline: true,
+          linecolor: "gray",
+          linewidth: 1.2,
+          mirror: true
+        },
+        showlegend: true,
+        legend: {x: 1.02, y: 0.5, xanchor: "left"},
+        shapes: shapes
+      };
+    
+      // グリッド線
+      const min_y = 35.5;
+      const max_y = 37.5;
+      const gridShapes = [];
+    
+      for (let y = min_y; y <= max_y + 0.001; y += 0.05) {
+        gridShapes.push({
+          type: "line",
+          x0: 0, x1: 45,
+          y0: y, y1: y,
+          line: { color: "gray", width: 0.2 },
+          opacity: 0.3
+        });
+      }
+      for (let y = min_y; y <= max_y + 0.001; y += 0.1) {
+        gridShapes.push({
+          type: "line",
+          x0: 0, x1: 45,
+          y0: y, y1: y,
+          line: { color: "gray", width: 0.5 },
+          opacity: 0.3
+        });
+      }
+      for (let y = min_y; y <= max_y + 0.001; y += 0.5) {
+        gridShapes.push({
+          type: "line",
+          x0: 0, x1: 45,
+          y0: y, y1: y,
+          line: { color: "gray", width: 1.0 },
+          opacity: 0.3
+        });
+      }
+    
+      // 36.7℃ の太線
+      gridShapes.push({
+        type: "line",
+        x0: 0, x1: 45,
+        y0: 36.7, y1: 36.7,
+        line: { color: "gray", width: 1.0 }
+      });
+    
+      layout.shapes = layout.shapes.concat(gridShapes);
+    
+      Plotly.newPlot("plot_iqr", [traceMedian, ...legendTraces], layout);
+    }
+    </script>
+    
+
+    <script>
+    // Cycle グラフの表示制御
+    function updateCycleVisibility() {
+      const cyclePlotOuter = document.getElementById("plot_cycle");
+      const gd = cyclePlotOuter.querySelector("div[id^='plotly']");
+    
+      if (!gd) return;
+    
+      gd.data.forEach((trace, idx) => {
+        const name = trace.name;
+        const m = name.match(/Cycle\s+(\d+)/);
+        if (!m) return;
+        const cid = Number(m[1]);
+    
+        trace.visible = activeCycles.has(cid) ? true : "legendonly";
+      });
+    
+      Plotly.redraw(gd);
+    }
+    </script>
+
+    <script>
+      buildCycleList();
+      updateCycleVisibility();
+      updateIQRPlot();
+    </script>
+
+
+
+    </body>
+    </html>
+    
